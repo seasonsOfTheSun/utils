@@ -3,6 +3,7 @@ import numpy as np
 
 
 def three_d_scatter(x,y,z,labels,colormap=None,
+                          marker_size = 10,
                           xaxis_title='xaxis_title',
                           yaxis_title='yaxis_title',
                           zaxis_title='zaxis_title',
@@ -25,7 +26,7 @@ def three_d_scatter(x,y,z,labels,colormap=None,
       fig.add_trace(plotly.graph_objects.Scatter3d(x=x[labels==label],y=y[labels==label],z=z[labels==label],
                                                 mode='markers',
                                                   marker=dict(
-                                                      size=16,
+                                                      size=marker_size,
                                                       line = {"color": "#000000", "width":10},
                                                       color=color
                                                   ),
