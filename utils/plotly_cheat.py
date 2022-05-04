@@ -44,5 +44,6 @@ def three_d_scatter(x,y,z,labels,colormap=None,
             family=font_family,
             size=font_size
         ))
+    return fig
 
 
