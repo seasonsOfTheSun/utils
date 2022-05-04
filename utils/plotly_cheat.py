@@ -1,4 +1,5 @@
 import plotly.graph_objects
+import numppy as np
 
 
 def three_d_scatter(x,y,z,labels,colormap=None,
