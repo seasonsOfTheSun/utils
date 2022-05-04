@@ -2,11 +2,11 @@ import plotly.graph_objects
 
 
 def three_d_scatter(x,y,z,labels,colormap=None,
-                          xaxis_title='xaxis_title'
-                          yaxis_title='yaxis_title'
-                          zaxis_title='zaxis_title'
-                          legend_title='legend_title'
-                          font_family='Arial'
+                          xaxis_title='xaxis_title',
+                          yaxis_title='yaxis_title',
+                          zaxis_title='zaxis_title',
+                          legend_title='legend_title',
+                          font_family='Arial',
                           font_size=10,
                           plot_title='plot_title'):
 
