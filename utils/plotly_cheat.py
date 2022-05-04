@@ -16,7 +16,7 @@ def three_d_scatter(x,y,z,labels,colormap=None,
     if colormap == None:
         colormap = {}
         for i in np.unique(labels):
-            colormap[i] = np.random.rand(size=(3,))
+            colormap[i] = np.random.rand(3)
 
 
 
