@@ -1,3 +1,6 @@
+import numpy as np
+import numpy.linalg
+import copy
 
 def rescale(x):
   return x/np.maximum(np.max(x, axis=0), -np.min(x, axis=0))
