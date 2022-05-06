@@ -1,3 +1,7 @@
+import numpy as np
+import numpy.linalg
+import copy
+
 def rescale(x):
   return x/np.maximum(np.max(x, axis=0), -np.min(x, axis=0))
 
@@ -38,20 +42,6 @@ class Chart:
     self._bins = np.array([(i,) for i in range(n_bins)])
     self.threshold = threshold
 
-    bins = np.linspace(0,1,self.n_bins)[1:]
-    self.bin_dict = {}
-    for e in self._selected_eigenvectors:
-      self.bin_dict[e] = {}
-      for i in range(self.n_bins):
-        self.bin_dict[e][i] = np.array(np.digitize(self.eigenvector_data[:,e], bins) == i)
-      
-  def get_bins(self,e,i):
-    bins = np.linspace(0,1,self.n_bins)[1:]
-    if e in self._selected_eigenvectors:
-      return self.bin_dict[e][i]
-    else:
-      return np.array(np.digitize(self.eigenvector_data[:,e], bins) == i)
-
   def in_selected_bin(self, selected_bin):
     """Creates a 1d-numpy array with length equal to n_samples
     with value True when the data point is in selected_bin 
@@ -59,16 +49,16 @@ class Chart:
     out = np.array([True]*self.n_samples)
     bins = np.linspace(0,1,self.n_bins)[1:]
     for e,i in zip(self._selected_eigenvectors, selected_bin):
-      #bins = 
-      out &= self.get_bins(e,i)
+      #bins = np.quantile(self.eigenvector_data[:,e],np.linspace(0,1,self.n_bins)[1:])
+      out &= np.array(np.digitize(self.eigenvector_data[:,e], bins) == i)
     return out
 
-  def std_of_eigenvector_on_bin(self, eigenvector, selected_bin):
+  def std_of_eigenvector_on_bin(self, eigenvector, bin):
     """ 
     Get the standard deviation of of an 
     eigenvector on a selected set of samples.
     """
-    return np.std(self.eigenvector_data[self.in_selected_bin(selected_bin), eigenvector])
+    return np.std(self.eigenvector_data[self.in_selected_bin(bin), eigenvector])
 
   def extra_covariance_of_eigenvector_on_bin(self, eigenvector, bin):
     """
@@ -81,23 +71,17 @@ class Chart:
       # No samples in this bin.
       return np.nan
 
-    # calculate the ratio of the volume of the point clouds 
-    # of the nodes within the bin in spectral space
-    # both before and after including `new_eigenvector`
     if len(self._selected_eigenvectors) > 1:
+      # 
       X = self.eigenvector_data[select,:][:,self._selected_eigenvectors]
       Y = self.eigenvector_data[select,:][:,list(self._selected_eigenvectors) + [eigenvector]]
-      return np.sqrt(np.linalg.det(np.cov(Y.T))/np.linalg.det(np.cov(X.T)))
+      return np.std(np.linalg.det(np.cov(Y.T))/np.linalg.det(np.cov(X.T)))
 
     elif len(self._selected_eigenvectors) == 1:
-      # if we previouslly only had only one eigenvector 
-      # (i.e. X is one dimensional actually)
-      # then we calculate `np.linalg.det(np.cov(X.T)` as simply the variance of `X`
+      # 
       Y = self.eigenvector_data[select,:][:, list(self._selected_eigenvectors) + [eigenvector]]
       sigma_2 = np.var(self.eigenvector_data[select,:][:,self._selected_eigenvectors])
-      return np.sqrt(np.linalg.det(np.cov(Y.T))/sigma_2)
-
-  #def chatterjee(self, eigenvector):
+      return np.std(np.linalg.det(np.cov(Y.T))/sigma_2)
 
   def domain_of_new_parameter(self, eigenvector):
     """
@@ -123,14 +107,8 @@ class Chart:
 
     out = copy.copy(self)
     out._selected_eigenvectors = np.array(list(self._selected_eigenvectors)+[new_eigenvector])
-    #selected_bins = self.domain_of_new_parameter(new_eigenvector)
-    out._bins = self.extend_bins(self._bins)#[selected_bins])
-    
-    bins = np.linspace(0,1,self.n_bins)[1:]
-    e = new_eigenvector
-    self.bin_dict[e] = {}
-    for i in range(self.n_bins):
-      self.bin_dict[e][i] = np.array(np.digitize(self.eigenvector_data[:,e], bins) == i)
+    selected_bins = self.domain_of_new_parameter(new_eigenvector)
+    out._bins = self.extend_bins(self._bins[selected_bins])
     return out
 
   def get_connected_blocks(G, nodelist, arr_):
@@ -148,3 +126,4 @@ class Chart:
     above_threshold = [self.extra_covariance_of_eigenvector_on_bin(eigenvector, bin) > self.threshold
                        for bin in self._bins]
     return sum(above_threshold) > 0.5*self.n_bins
+
