@@ -12,6 +12,12 @@ def three_d_scatter(x,y,z,labels,colormap=None,
                           font_size=10,
                           plot_title='plot_title'):
 
+
+    x = np.array(x)
+    y = np.array(y)
+    z = np.array(z)
+    labels=np.array(labels)
+
     fig = plotly.graph_objects.Figure()
 
     if colormap == None:
@@ -35,7 +41,6 @@ def three_d_scatter(x,y,z,labels,colormap=None,
 
     fig.update_layout(
         title=plot_title,
-        # axis titles areset through the scene object for 3d plots
         scene = dict(
                         xaxis_title=xaxis_title,
                         yaxis_title=yaxis_title,
@@ -46,5 +51,4 @@ def three_d_scatter(x,y,z,labels,colormap=None,
             size=font_size
         ))
     return fig
-
 
